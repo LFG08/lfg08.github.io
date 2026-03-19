@@ -98,6 +98,12 @@ margin-top:8px;
 opacity:0.7;
 }
 
+.status{
+font-size:12px;
+margin-top:6px;
+opacity:0.8;
+}
+
 </style>
 
 </head>
@@ -118,22 +124,72 @@ opacity:0.7;
 <div class="tags">#Isa2026 </div>
 </a>
 
-<a href="unrealunearth-main" class="card">
+<a href="unrealunearth-main" class="card"
+data-key="unrealPuzzleProgress"
+data-total="23">
+  
 <img src="unrealunearth-main/unreal.png">
+  
 <div class="tags">#UnrealUnearth #Hozier</div>
+
+<div class="status"></div>
+
 </a>
 
-<a href="TARITS" class="card">
+<a href="TARITS" class="card"
+data-key="TARITSPuzzleProgress"
+data-total="20">
+  
 <img src="TARITS/mandala.png">
+  
 <div class="tags">#ThereAreRiversInTheSky #Livros</div>
+
+<div class="status"></div>
 </a>
 
-<a href="PRANTAS" class="card">
+<a href="PRANTAS" class="card"
+data-key="prantasPuzzleProgress"
+data-total="25">
+  
 <img src="PRANTAS/mandala_prantas.png">
+  
 <div class="tags">#VibeVegana #Verde #Plantas</div>
+
+<div class="status"></div>
 </a>
 
 </div>
+<script>
+  window.addEventListener("load", function(){
 
+document.querySelectorAll(".card").forEach(card => {
+
+let key = card.dataset.key;
+let total = parseInt(card.dataset.total);
+
+let data = JSON.parse(localStorage.getItem(key) || "[]");
+
+let statusEl = card.querySelector(".status");
+
+if(data.length === total && total > 0){
+
+statusEl.textContent = "✔ completed";
+
+}
+else if(data.length > 0){
+
+statusEl.textContent = data.length + " / " + total;
+
+}
+else{
+
+statusEl.textContent = "";
+
+}
+
+});
+
+});
+</script>
 </body>
 </html>
