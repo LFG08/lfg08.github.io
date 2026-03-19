@@ -448,7 +448,7 @@ answerClips[word].classList.remove("visible");
 document.querySelectorAll("#wordList li")
 .forEach(li=>li.classList.remove("found"));
 
-localStorage.removeItem("unrealPuzzleProgress");
+localStorage.removeItem("TARITSPuzzleProgress");
 updateCounter();
 }
 
@@ -456,7 +456,7 @@ function confirmReset(){
 
 if(confirm("Reset?")){
 clearAll();
-localStorage.removeItem("unrealPuzzleProgress");
+localStorage.removeItem("TARITSPuzzleProgress");
 }
 
   }
@@ -541,7 +541,7 @@ document.body.classList.remove("dragging");
 function saveProgress(){
 
 localStorage.setItem(
-"unrealPuzzleProgress",
+"TARITSPuzzleProgress",
 JSON.stringify(Object.keys(answerClips)
 .filter(w => answerClips[w].classList.contains("visible")))
 );
@@ -550,7 +550,7 @@ JSON.stringify(Object.keys(answerClips)
 
 function loadProgress(){
 
-let saved = localStorage.getItem("unrealPuzzleProgress");
+let saved = localStorage.getItem("TARITSPuzzleProgress");
 
 if(!saved) return;
 
