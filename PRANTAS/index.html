@@ -73,7 +73,7 @@ position:fixed;
 top:120px;
 right:30px;
 left:30px;
-width:210px;
+width:220px;
 
 max-height:70vh;
 
@@ -100,8 +100,14 @@ align-items: center;
 gap: 8px; /* controls the space */
 }
 
+#menuHeader .title {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 #counter{
   white-space: nowrap; /* prevents breaking like 0 / 20 */
+  margin-left: auto;
 }
 
 
@@ -227,7 +233,7 @@ cursor:pointer;
 <div id="wordMenu">
 
 <div id="menuHeader">
-<span>🍃Vibe Vegana</span>
+<span class= "title">🍃Vibe Vegana</span>
 <span id="counter">0 / 25</span>
   
 <span class="info-wrapper">
