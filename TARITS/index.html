@@ -68,12 +68,14 @@ cursor:grabbing;
 
 /* ================= MENU ================= */
 
+/* ================= MENU ================= */
+
 #wordMenu{
 position:fixed;
 top:120px;
 right:30px;
 left:30px;
-width:180px;
+width:210px;
 
 max-height:70vh;
 
@@ -98,6 +100,82 @@ border-bottom:1px solid white;
 display: flex;
 align-items: center;
 gap: 8px; /* controls the space */
+}
+
+#counter{
+  white-space: nowrap; /* prevents breaking like 0 / 20 */
+}
+
+
+/* ================= INFO ================= */
+
+.info-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.info-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 6px; /* invisible bridge */
+}
+
+.info-btn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  background: #ccc;
+  line-height: 16px;
+  padding: 0;
+  margin-right: 8px;
+}
+
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 180px;
+  margin-top: 4px; /* small, safe gap */
+
+  background: rgba(0,0,0,0.85);
+  color: white;
+  font-size: 12px;
+  padding: 8px;
+  border-radius: 6px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s;
+}
+
+/* show tooltip when hovering button OR tooltip itself */
+.info-wrapper:hover .tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  
+}
+
+.tooltip a {
+  text-decoration: none;
+}
+
+.tooltip a:hover {
+  text-decoration: none; /* optional: add back on hover */
+}
+
+.highlight {
+  color: #0098f0;
+  text-decoration: none
+}
+
+.highlight:hover{
+  text-decoration: none;
 }
 
 #wordList{
@@ -154,6 +232,16 @@ cursor:pointer;
 <span>There are Rivers 
   In the Sky</span>
 <span id="counter">0 / 20</span>
+
+<span class="info-wrapper">
+    <button class="info-btn">i</button>
+
+    <span class="tooltip">
+      Mandala e Caça-Palavras inspirados no livro <a href="https://en.wikipedia.org/wiki/There_Are_Rivers_in_the_Sky" class= highlight>"There Are Rivers in The Sky"</a> de Elif Shafak. O livro acompanha três personagens: 
+      <a class= highlight>Arthur</a>, um garoto de rua na <a class= highlight>Londres</a> vitoriana que se torna um habilidoso <a class= highlight>assiriólogo</a>; <a class= highlight>Narin</a>, uma garota <a class= highlight>yazidi</a> que vive na Turquia em 2014; e <a class= highlight>Zaleekhah</a>, uma hidróloga que vive em uma casa flutuante em Londres em 2018. Os três personagens estão conectados por suas interações com uma única gota d'água."
+    </span>
+  </span>
+  
 <button id="toggleMenu">–</button>
 </div>
 
