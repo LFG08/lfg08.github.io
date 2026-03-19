@@ -4,6 +4,7 @@
 <head>
 
 <title>Vibe Vegana</title>
+<link rel="icon" type="image/png" href="./VN.png" sizes="32px32">
 
 <style>
 
@@ -498,7 +499,7 @@ answerClips[word].classList.remove("visible");
 document.querySelectorAll("#wordList li")
 .forEach(li=>li.classList.remove("found"));
 
-localStorage.removeItem("unrealPuzzleProgress");
+localStorage.removeItem("prantasPuzzleProgress");
 updateCounter();
 }
 
@@ -506,7 +507,7 @@ function confirmReset(){
 
 if(confirm("Reset?")){
 clearAll();
-localStorage.removeItem("unrealPuzzleProgress");
+localStorage.removeItem("prantasPuzzleProgress");
 }
 
   }
@@ -591,7 +592,7 @@ document.body.classList.remove("dragging");
 function saveProgress(){
 
 localStorage.setItem(
-"unrealPuzzleProgress",
+"prantasPuzzleProgress",
 JSON.stringify(Object.keys(answerClips)
 .filter(w => answerClips[w].classList.contains("visible")))
 );
@@ -600,7 +601,7 @@ JSON.stringify(Object.keys(answerClips)
 
 function loadProgress(){
 
-let saved = localStorage.getItem("unrealPuzzleProgress");
+let saved = localStorage.getItem("prantasPuzzleProgress");
 
 if(!saved) return;
 
