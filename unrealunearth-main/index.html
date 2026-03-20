@@ -457,7 +457,7 @@ clip.style.clipPath = "polygon(" + points.join(",") + ")";
 clip.style.backgroundImage = "url('" + currentOverlay + "')";
 
 
-answersOverlay.appendChild(clip);
+canswersOverlay.appendChild(clip);
 
 answerClips[word]=clip;
 
@@ -466,15 +466,15 @@ answerClips[word]=clip;
 
 if(!answerClips[word].classList.contains("visible")){
 
-answerClips[word].classList.add("visible");
+  answerClips[word].classList.add("visible");
+  menuItems["menu-"+word].classList.add("found");
 
 }else if(allowToggleOff){
 
-answerClips[word].classList.remove("visible");
+  answerClips[word].classList.remove("visible");
+  menuItems["menu-"+word].classList.remove("found");
 
-}
-
-menuItems["menu-"+word].classList.toggle("found");
+}  
 updateCounter();
 saveProgress();
 }
@@ -636,22 +636,28 @@ toggleAnswer(area, word);
 
 window.addEventListener("load", function(){
 
-let savedOverlay = localStorage.getItem("selectedOverlay");
+  updateCounter();
 
-if(savedOverlay){
+  /* restore overlay OR set default */
+  let savedOverlay = localStorage.getItem("selectedOverlay");
 
-currentOverlay = savedOverlay;
+  if(savedOverlay){
+    currentOverlay = savedOverlay;
+    overlaySelector.value = savedOverlay;
+  }else{
+    // FIRST TIME → force option 1
+    currentOverlay = "unreal_gabarito_1.png";
+    overlaySelector.value = "unreal_gabarito_1.png";
+  }
 
-/* update selector UI */
-overlaySelector.value = savedOverlay;
+  /* apply overlay */
+  overlaySelector.dispatchEvent(new Event("change"));
 
-}
+  /* load answers AFTER overlay is ready */
+  loadProgress();
 
 });
   
-window.addEventListener("load", loadProgress);
-
-
 
 </script>
 
