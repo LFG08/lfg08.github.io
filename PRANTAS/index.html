@@ -4,7 +4,7 @@
 <head>
 
 <title>Vibe Vegana</title>
-<link rel="icon" type="image/png" href="./VN.png" sizes="32px32">
+<link rel="icon" type="image/png" href="/VN.png" sizes="32px32">
 
 <style>
 
@@ -594,7 +594,7 @@ document.body.classList.remove("dragging");
 function saveProgress(){
 
 localStorage.setItem(
-"prantasPuzzleProgress",
+"unrealPuzzleProgress",
 JSON.stringify(Object.keys(answerClips)
 .filter(w => answerClips[w].classList.contains("visible")))
 );
@@ -603,7 +603,7 @@ JSON.stringify(Object.keys(answerClips)
 
 function loadProgress(){
 
-let saved = localStorage.getItem("prantasPuzzleProgress");
+let saved = localStorage.getItem("unrealPuzzleProgress");
 
 if(!saved) return;
 
@@ -623,8 +623,6 @@ toggleAnswer(area, word);
 
 }
 
-window.addEventListener("load", loadProgress);
-
 window.addEventListener("load", function(){
 
 let savedOverlay = localStorage.getItem("selectedOverlay");
@@ -639,8 +637,11 @@ overlaySelector.value = savedOverlay;
 }
 
 });
+  
+window.addEventListener("load", loadProgress);
 
 </script>
+
 
 <script src="https://unpkg.com/image-map-resizer/js/imageMapResizer.min.js"></script>
 <script>imageMapResize();</script>
