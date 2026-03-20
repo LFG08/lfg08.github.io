@@ -477,9 +477,13 @@ answerClips[word].classList.remove("visible");
 menuItems["menu-"+word].classList.toggle("found");
 updateCounter();
 saveProgress();
-
-
+}
+  
 /* overlay */
+window.addEventListener("load", function(){
+overlaySelector.dispatchEvent(new Event("change"));
+});
+  
 overlaySelector.onchange = function(){
 
 currentOverlay = this.value;
@@ -493,9 +497,9 @@ localStorage.setItem("selectedOverlay", currentOverlay);
 };
 
 /* SAVE PROGRESS */
-saveProgress();
 
-}
+
+
 
 /* ===== reset ===== */
 
