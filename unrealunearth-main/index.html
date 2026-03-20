@@ -4,7 +4,8 @@
 <head>
 
 <title>UnrealUnearth</title>
-
+<link rel="icon" type="image/png" href="/VN.png" sizes="32x32">
+  
 <style>
 
 /* ================= MANDALA ================= */
@@ -487,6 +488,8 @@ Object.values(answerClips).forEach(clip=>{
 clip.style.backgroundImage = "url('" + currentOverlay + "')";
 });
 
+localStorage.setItem("selectedOverlay", currentOverlay);
+  
 };
 
 /* SAVE PROGRESS */
@@ -627,6 +630,21 @@ toggleAnswer(area, word);
 
 }
 
+window.addEventListener("load", function(){
+
+let savedOverlay = localStorage.getItem("selectedOverlay");
+
+if(savedOverlay){
+
+currentOverlay = savedOverlay;
+
+/* update selector UI */
+overlaySelector.value = savedOverlay;
+
+}
+
+});
+  
 window.addEventListener("load", loadProgress);
 
 
