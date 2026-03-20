@@ -625,14 +625,18 @@ window.addEventListener("load", function(){
 
 updateCounter();
 
-/* restore overlay */
+/* restore overlay OR set default */
 let savedOverlay = localStorage.getItem("selectedOverlay");
 
 if(savedOverlay){
   currentOverlay = savedOverlay;
   overlaySelector.value = savedOverlay;
+}else{
+  // FIRST TIME → force option 1
+  currentOverlay = "mandala_gabarito_1.png";
+  overlaySelector.value = "mandala_gabarito_1.png";
 }
-
+  
 /* apply overlay immediately */
 overlaySelector.dispatchEvent(new Event("change"));
 
