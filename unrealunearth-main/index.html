@@ -90,17 +90,37 @@ flex-direction:column;
 z-index:20;
 }
 
-#menuHeader{
-padding:8px;
-cursor:move;
-display:flex;
-justify-content:space-between;
-border-bottom:1px solid white;
+#menuHeader {
+  padding: 8px;
+  cursor: move;
+  border-bottom: 1px solid white;
 
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* KEY */
 }
 
-/* ================= INFO ================= */
+/* LEFT SIDE */
+.title {
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 6px;
+}
 
+/* RIGHT SIDE GROUP */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* COUNTER */
+#counter {
+  white-space: nowrap;
+}
+
+
+/* ================= INFO ================= */
 .info-wrapper {
   position: relative;
   display: inline-block;
@@ -115,7 +135,13 @@ border-bottom:1px solid white;
   height: 6px; /* invisible bridge */
 }
 
-.info-btn {
+.info-btn,
+.menu-btn{
+  
+  display: flex;              /* KEY */
+  align-items: center;        /* vertical center */
+  justify-content: center;    /* horizontal center */
+  
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -125,6 +151,7 @@ border-bottom:1px solid white;
   background: #ccc;
   line-height: 16px;
   padding: 0;
+  margin-right: 4px;
 }
 
 .tooltip {
@@ -216,19 +243,21 @@ cursor:pointer;
 <div id="wordMenu">
 
 <div id="menuHeader">
-<span>Unreal Unearth</span>
+<span class="title">Unreal Unearth</span>
+
+<div class="right">
 <span id="counter">0 / 23</span>
 
 <span class="info-wrapper">
     <button class="info-btn">i</button>
-
     <span class="tooltip">
       Mandala inspirada na música <a href= "https://open.spotify.com/intl-pt/track/25m161aHgT9ORt97vTvhlR?si=020703b81b464235" class= highlight>"First Time"</a> do Hozier.
       Caça-Palavras contém nomes das músicas do álbum 
       <a class= highlight href="https://open.spotify.com/intl-pt/album/4goifiXK2L1XEEMeUwmbxG?si=u0dbf8cUQAWlvRrZcZgYuA">Unreal Unearth Unending</a>.
     </span>
   </span>
-
+  <a class="menu-btn" href="/" >☰</a>
+  </div>
 
 <button id="toggleMenu">–</button>
 </div>
@@ -384,30 +413,32 @@ onclick="toggleAnswer(this,'July');return false;">
 
 <script>
 
-/*counter*/
-function updateCounter(){
-
-let found = document.querySelectorAll("#wordList li.found").length;
-let total = document.querySelectorAll("#wordList li").length;
-
-document.getElementById("counter").textContent =
-found + " / " + total;
-
-  /* PUZZLE COMPLETE MESSAGE */
-
-if(found === total && total > 0){
-
-setTimeout(function(){
-alert("fim! 🎉🎉");
-},200);
-}
-}
-
-window.addEventListener("load", updateCounter);
-
 /* prevent image dragging */
-
 document.addEventListener("dragstart", e=>e.preventDefault());
+
+/* load */
+window.addEventListener("load", function(){
+updateCounter();
+
+/* restore overlay OR set default */
+let savedOverlay = localStorage.getItem("selectedOverlay");
+
+if(savedOverlay){
+  currentOverlay = savedOverlay;
+  overlaySelector.value = savedOverlay;
+}else{
+  // FIRST TIME → force option 1
+  currentOverlay = "unreal_gabarito_1.png";
+  overlaySelector.value = "unreal_gabarito_1.png";
+}
+  
+/* apply overlay immediately */
+overlaySelector.dispatchEvent(new Event("change"));
+
+/* load answers AFTER overlay is ready */
+loadProgress();
+});
+
 
 /* ===== toggle mode ===== */
 
@@ -420,11 +451,20 @@ allowToggleOff=!allowToggleOff;
 this.textContent=allowToggleOff
 ? "Desmarcar: ON"
 : "Desmarcar: OFF";
-
 };
 
-/* ==== gabaritos ====*/
-let currentOverlay = "unreal_gabarito_1.png";
+/* OVERLAY */
+
+overlaySelector.onchange = function(){
+
+currentOverlay = this.value;
+
+Object.values(answerClips).forEach(clip=>{
+clip.style.backgroundImage = "url('" + currentOverlay + "')";
+});
+
+localStorage.setItem("selectedOverlay", currentOverlay);
+};
 
 /* ===== menu items ===== */
 
@@ -456,50 +496,67 @@ clip.className = "answerClip";
 clip.style.clipPath = "polygon(" + points.join(",") + ")";
 clip.style.backgroundImage = "url('" + currentOverlay + "')";
 
+const answersOverlay = document.getElementById("answersOverlay");
 
 answersOverlay.appendChild(clip);
 
 answerClips[word]=clip;
-
-
 }
 
-if(!answerClips[word].classList.contains("visible")){
+let isVisible = answerClips[word].classList.contains("visible");
 
-answerClips[word].classList.add("visible");
+if(!isVisible){
+
+  answerClips[word].classList.add("visible");
+  menuItems["menu-"+word].classList.add("found");
 
 }else if(allowToggleOff){
 
-answerClips[word].classList.remove("visible");
+  answerClips[word].classList.remove("visible");
+  menuItems["menu-"+word].classList.remove("found");
 
 }
 
-menuItems["menu-"+word].classList.toggle("found");
 updateCounter();
 saveProgress();
 }
   
-/* overlay */
-window.addEventListener("load", function(){
-overlaySelector.dispatchEvent(new Event("change"));
-});
-  
-overlaySelector.onchange = function(){
+/*counter*/
+function updateCounter(){
 
-currentOverlay = this.value;
+let found = document.querySelectorAll("#wordList li.found").length;
+let total = document.querySelectorAll("#wordList li").length;
 
-Object.values(answerClips).forEach(clip=>{
-clip.style.backgroundImage = "url('" + currentOverlay + "')";
-});
-
-localStorage.setItem("selectedOverlay", currentOverlay);
-  
-};
+document.getElementById("counter").textContent =
+found + " / " + total;
+}
 
 /* SAVE PROGRESS */
 
+function loadProgress(){
 
+let saved = localStorage.getItem("unrealPuzzleProgress");
+if(!saved) return;
 
+let words = JSON.parse(saved);
+
+words.forEach(word => {
+
+let area = document.querySelector(
+`area[onclick*="${word}"]`
+);
+
+if(area){
+
+// ONLY toggle if it's not already visible
+if(!answerClips[word] || 
+   !answerClips[word].classList.contains("visible")){
+
+toggleAnswer(area, word);
+}
+}
+});
+}
 
 /* ===== reset ===== */
 
@@ -600,7 +657,7 @@ isDragging=false;
 document.body.classList.remove("dragging");
 });
 
-/* ===== save ===== */
+/* ===== savePuzzleProgress ===== */
 
 function saveProgress(){
 
@@ -612,51 +669,12 @@ JSON.stringify(Object.keys(answerClips)
 
 }
 
-function loadProgress(){
-
-let saved = localStorage.getItem("unrealPuzzleProgress");
-
-if(!saved) return;
-
-let words = JSON.parse(saved);
-
-words.forEach(word => {
-
-let area = document.querySelector(
-`area[onclick*="${word}"]`
-);
-
-if(area){
-toggleAnswer(area, word);
-}
-
-});
-
-}
-
-window.addEventListener("load", function(){
-
-let savedOverlay = localStorage.getItem("selectedOverlay");
-
-if(savedOverlay){
-
-currentOverlay = savedOverlay;
-
-/* update selector UI */
-overlaySelector.value = savedOverlay;
-
-}
-
-});
-  
-window.addEventListener("load", loadProgress);
-
-
 
 </script>
 
 <script src="https://unpkg.com/image-map-resizer/js/imageMapResizer.min.js"></script>
 <script>imageMapResize();</script>
+
 
 </body>
 </html>
