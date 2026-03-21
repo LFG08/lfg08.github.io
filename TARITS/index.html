@@ -388,7 +388,6 @@ overlaySelector.dispatchEvent(new Event("change"));
 loadProgress();
 });
 
-
 /* ===== toggle mode ===== */
 
 let allowToggleOff=true;
@@ -509,8 +508,18 @@ let total = document.querySelectorAll("#wordList li").length;
 
 document.getElementById("counter").textContent =
 found + " / " + total;
+
+  /* PUZZLE COMPLETE MESSAGE */
+
+if(found === total && total > 0){
+
+setTimeout(function(){
+alert("fim! 🎉🎉");
+},200);
+}
 }
 
+window.addEventListener("load", updateCounter);
 /* SAVE PROGRESS */
 
 function loadProgress(){
