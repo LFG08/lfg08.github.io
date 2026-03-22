@@ -216,21 +216,8 @@ text-decoration:line-through;
 opacity:0.6;
 }
 
-.hidden-word{
-position:relative;
-}
-
-/* show ???? initially */
-.hidden-word::before{
-content:"?";
-position:absolute;
-left:0;
-color:rgba(255,255,255,0.3);
-}
-
-/* when found → show real word */
-.hidden-word.found::before{
-content:attr(data-hidden);
+/* hidden words - when found */
+.hidden-word.found{
 color:#f5e6d3;
 text-decoration: line-through;
 }
@@ -316,9 +303,9 @@ cursor:pointer;
 <li id="menu-Sabbath" data-def="Encontro ritualístico associado à bruxaria.">Sabbath</li>
 <li id="menu-Terra">Terra</li>
 
-<li id="menu-Gato" class="hidden-word" data-hidden=" Gato" data-def="????... um ser misterioso">?</li>
-<li id="menu-Corvo" class="hidden-word" data-hidden=" Corvo" data-def="????? um segundo ser misterioso">?</li>
-<li id="menu-Pentagrama" class="hidden-word" data-hidden=" Pentagrama" data-def="??????????... simbolo escondido">?</li>
+<li id="menu-Gato" class="hidden-word" data-hidden="Gato" data-def="um ser misterioso"></li>
+<li id="menu-Corvo" class="hidden-word" data-hidden="Corvo" data-def="um segundo ser misterioso"></li>
+<li id="menu-Pentagrama" class="hidden-word" data-hidden="Pentagrama" data-def="um simbolo escondido"></li>
 
 </ul>
 
@@ -440,7 +427,15 @@ document.addEventListener("dragstart", e=>e.preventDefault());
 
 /* load */
 window.addEventListener("load", function(){
- 
+
+/* ===== hidden words: show ???? ===== */
+document.querySelectorAll(".hidden-word").forEach(li => {
+
+let word = li.dataset.hidden;
+li.textContent = "?".repeat(word.length);
+
+});
+
 updateCounter();
 
 /* restore overlay OR set default */
@@ -527,8 +522,6 @@ tooltip.style.opacity = "0";
 });
 
 });
-
-
   
 /* ===== answer highlights ===== */
 
@@ -559,6 +552,7 @@ answersOverlay.appendChild(clip);
 answerClips[word]=clip;
 }
 
+let menuWord = menuItems["menu-"+word];
 let isVisible = answerClips[word].classList.contains("visible");
 
 if(!isVisible){
@@ -566,11 +560,19 @@ if(!isVisible){
   answerClips[word].classList.add("visible");
   menuItems["menu-"+word].classList.add("found");
 
-}else if(allowToggleOff){
+  if(menuWord.classList.contains("hidden-word")){
+  menuWord.textContent = menuWord.dataset.hidden;
+ }
+}
+
+else if(allowToggleOff){
 
   answerClips[word].classList.remove("visible");
   menuItems["menu-"+word].classList.remove("found");
 
+  if(menuWord.classList.contains("hidden-word")){
+    menuWord.textContent = "?".repeat(menuWord.dataset.hidden.length);
+  };
 }
 
 updateCounter();
@@ -578,7 +580,6 @@ saveProgress();
 }
   
 /*counter*/
-
 function updateCounter(){
 
 let found = document.querySelectorAll("#wordList li.found").length;
@@ -586,15 +587,6 @@ let total = document.querySelectorAll("#wordList li").length;
 
 document.getElementById("counter").textContent =
 found + " / " + total;
-
-  /* PUZZLE COMPLETE MESSAGE */
-
-if(found === total && total > 0){
-
-setTimeout(function(){
-alert("fim! 🎉🎉");
-},200);
-}
 }
 
 /* SAVE PROGRESS */
@@ -628,12 +620,24 @@ toggleAnswer(area, word);
 
 function clearAll(){
 
+/* remove highlights */
 for(let word in answerClips){
 answerClips[word].classList.remove("visible");
+
 }
 
-document.querySelectorAll("#wordList li")
-.forEach(li=>li.classList.remove("found"));
+/* reset menu */
+document.querySelectorAll("#wordList li").forEach(li => {
+
+  li.classList.remove("found");
+
+  /* 👇 THIS IS THE FIX */
+  if(li.classList.contains("hidden-word")){
+    let word = li.dataset.hidden;
+    li.textContent = "?".repeat(word.length);
+  }
+
+});
 
 localStorage.removeItem("goyaPuzzleProgress");
 updateCounter();
