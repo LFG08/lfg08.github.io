@@ -308,6 +308,73 @@ data-total="40">
   
 </div>
 <script>
+async function getCelticCounterMeta(){
+try{
+let response = await fetch("CELTIC/index.html", { cache: "no-store" });
+if(!response.ok) throw new Error("Falha ao carregar CELTIC/index.html");
+let html = await response.text();
+
+let levelsStart = html.indexOf('const levels = [');
+let nivel1Start = html.indexOf('key: "nivel1"', levelsStart);
+let nivel2Start = html.indexOf('key: "nivel2"', nivel1Start);
+let levelsEnd = html.indexOf('\n]\n;', nivel2Start);
+
+if(levelsStart === -1 || nivel1Start === -1 || nivel2Start === -1 || levelsEnd === -1){
+throw new Error("Estrutura dos niveis nao encontrada");
+}
+
+let nivel1Block = html.slice(nivel1Start, nivel2Start);
+let nivel2Block = html.slice(nivel2Start, levelsEnd);
+let itemRegex = /\{\s*id:\s*"([^"]+)"[\s\S]*?\}/g;
+
+let groupById = {};
+let match;
+while((match = itemRegex.exec(nivel1Block)) !== null){
+let itemBlock = match[0];
+let id = match[1];
+let groupMatch = itemBlock.match(/group:\s*"([^"]+)"/);
+groupById[id] = groupMatch ? groupMatch[1] : id;
+}
+
+let level1Total = new Set(Object.values(groupById)).size;
+let level2Total = (nivel2Block.match(/\{\s*id:\s*"([^"]+)"/g) || []).length;
+
+return {
+groupById,
+combinedTotal: level1Total + level2Total
+};
+}catch{
+return null;
+}
+}
+
+function getCelticStatus(meta, totalFallback){
+let lastLevel = localStorage.getItem("CELTIC_last_level") || "nivel1";
+let nivel1Progress = JSON.parse(localStorage.getItem("CELTIC_nivel1_progress") || "[]");
+let nivel2Progress = JSON.parse(localStorage.getItem("CELTIC_nivel2_progress") || "[]");
+
+let uniqueNivel1Found = nivel1Progress.length;
+let combinedTotal = totalFallback;
+
+if(meta && meta.groupById){
+let mapped = nivel1Progress.map(id => meta.groupById[id] || id);
+uniqueNivel1Found = new Set(mapped).size;
+combinedTotal = meta.combinedTotal;
+}
+
+if(lastLevel === "nivel2"){
+return {
+thumb: "CELTIC/thumbceltic2.png",
+counter: (uniqueNivel1Found + nivel2Progress.length) + " / " + combinedTotal
+};
+}
+
+return {
+thumb: "CELTIC/thumbceltic1.png",
+counter: uniqueNivel1Found + " / ?"
+};
+}
+
 window.addEventListener("load", function(){
 
 document.querySelectorAll(".card").forEach(card => {
@@ -315,19 +382,16 @@ document.querySelectorAll(".card").forEach(card => {
 if(card.dataset.celtic === "true"){
 let statusEl = card.querySelector(".status");
 let thumbEl = document.getElementById("celticThumb");
-let lastLevel = localStorage.getItem("CELTIC_last_level") || "nivel1";
-let total = parseInt(card.dataset.total);
+let totalFallback = parseInt(card.dataset.total);
+let initial = getCelticStatus(null, totalFallback);
+thumbEl.src = initial.thumb;
+statusEl.textContent = initial.counter;
 
-let nivel1Progress = JSON.parse(localStorage.getItem("CELTIC_nivel1_progress") || "[]");
-let nivel2Progress = JSON.parse(localStorage.getItem("CELTIC_nivel2_progress") || "[]");
-
-if(lastLevel === "nivel2"){
-thumbEl.src = "CELTIC/thumbceltic2.png";
-statusEl.textContent = (nivel1Progress.length + nivel2Progress.length) + " / " + total;
-}else{
-thumbEl.src = "CELTIC/thumbceltic1.png";
-statusEl.textContent = nivel1Progress.length + " / ?";
-}
+getCelticCounterMeta().then(meta => {
+let updated = getCelticStatus(meta, totalFallback);
+thumbEl.src = updated.thumb;
+statusEl.textContent = updated.counter;
+});
 return;
 }
 
