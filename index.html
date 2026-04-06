@@ -292,12 +292,44 @@ data-total="50">
   <div class="status"></div>
 
 </a>
+
+<a href="CELTIC" class="card" id="celticCard"
+data-celtic="true"
+data-total="40">
+
+  <div class="thumb">
+    <img id="celticThumb" src="CELTIC/thumbceltic1.png" loading="lazy">
+  </div>
+
+  <div class="tags">#Celtic #Irlanda #DoisNiveis</div>
+  <div class="status"></div>
+
+</a>
   
 </div>
 <script>
 window.addEventListener("load", function(){
 
 document.querySelectorAll(".card").forEach(card => {
+
+if(card.dataset.celtic === "true"){
+let statusEl = card.querySelector(".status");
+let thumbEl = document.getElementById("celticThumb");
+let lastLevel = localStorage.getItem("CELTIC_last_level") || "nivel1";
+let total = parseInt(card.dataset.total);
+
+let nivel1Progress = JSON.parse(localStorage.getItem("CELTIC_nivel1_progress") || "[]");
+let nivel2Progress = JSON.parse(localStorage.getItem("CELTIC_nivel2_progress") || "[]");
+
+if(lastLevel === "nivel2"){
+thumbEl.src = "CELTIC/thumbceltic2.png";
+statusEl.textContent = (nivel1Progress.length + nivel2Progress.length) + " / " + total;
+}else{
+thumbEl.src = "CELTIC/thumbceltic1.png";
+statusEl.textContent = nivel1Progress.length + " / ?";
+}
+return;
+}
 
 let key = card.dataset.key;
 let total = parseInt(card.dataset.total);
