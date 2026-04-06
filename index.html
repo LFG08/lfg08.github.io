@@ -309,6 +309,15 @@ data-total="50">
   
 </div>
 <script>
+function safeParseStoredArray(key){
+try{
+let parsed = JSON.parse(localStorage.getItem(key) || "[]");
+return Array.isArray(parsed) ? parsed : [];
+}catch{
+return [];
+}
+}
+
 async function getCelticCounterMeta(){
 try{
 let response = await fetch("CELTIC/index.html", { cache: "no-store" });
@@ -338,10 +347,19 @@ groupById[id] = groupMatch ? groupMatch[1] : id;
 }
 
 let level1Total = new Set(Object.values(groupById)).size;
-let level2Total = (nivel2Block.match(/\{\s*id:\s*"([^"]+)"/g) || []).length;
+let level1Ids = Object.keys(groupById);
+let level2Ids = [];
+let level2Regex = /\{\s*id:\s*"([^"]+)"/g;
+let level2Match;
+while((level2Match = level2Regex.exec(nivel2Block)) !== null){
+level2Ids.push(level2Match[1]);
+}
+let level2Total = level2Ids.length;
 
 return {
 groupById,
+level1Ids,
+level2Ids,
 combinedTotal: level1Total + level2Total
 };
 }catch{
@@ -351,16 +369,25 @@ return null;
 
 function getCelticStatus(meta, totalFallback){
 let lastLevel = localStorage.getItem("CELTIC_last_level") || "nivel1";
-let nivel1Progress = JSON.parse(localStorage.getItem("CELTIC_nivel1_progress") || "[]");
-let nivel2Progress = JSON.parse(localStorage.getItem("CELTIC_nivel2_progress") || "[]");
+let nivel1Progress = safeParseStoredArray("CELTIC_nivel1_progress");
+let nivel2Progress = safeParseStoredArray("CELTIC_nivel2_progress");
 
 let uniqueNivel1Found = nivel1Progress.length;
 let combinedTotal = totalFallback;
 
 if(meta && meta.groupById){
+if(Array.isArray(meta.level1Ids)){
+let validLevel1Ids = new Set(meta.level1Ids);
+nivel1Progress = nivel1Progress.filter(id => validLevel1Ids.has(id));
+}
 let mapped = nivel1Progress.map(id => meta.groupById[id] || id);
 uniqueNivel1Found = new Set(mapped).size;
 combinedTotal = meta.combinedTotal;
+
+if(Array.isArray(meta.level2Ids)){
+let validLevel2Ids = new Set(meta.level2Ids);
+nivel2Progress = nivel2Progress.filter(id => validLevel2Ids.has(id));
+}
 }
 
 if(lastLevel === "nivel2"){

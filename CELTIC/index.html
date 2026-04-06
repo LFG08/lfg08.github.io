@@ -1108,15 +1108,24 @@ saved = JSON.parse(localStorage.getItem("CELTIC_" + levelKey + "_progress")) || 
 }catch{
 saved = [];
 }
-
-if(levelKey !== "nivel1"){
-return saved.length;
+if(!Array.isArray(saved)){
+saved = [];
 }
 
 let level = getLevelByKey(levelKey);
 let items = level.categories.flatMap(category => category.items).flat();
+let validIds = new Set(items.map(item => item.id));
+
+if(levelKey !== "nivel1"){
+return new Set(saved.filter(id => validIds.has(id))).size;
+}
+
 let groupById = new Map(items.map(item => [item.id, item.group || item.id]));
-return new Set(saved.map(id => groupById.get(id) || id)).size;
+return new Set(
+saved
+.filter(id => validIds.has(id))
+.map(id => groupById.get(id) || id)
+).size;
 }
 
 function buildRectPolygon(coords){
