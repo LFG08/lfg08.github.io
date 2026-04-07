@@ -140,7 +140,7 @@ opacity:0.7;
 font-size:12px;
 margin-top:6px;
 opacity:0.8;
-color:#9ad69a;
+color:#f5e6d3;
 }
 /* ===== MOBILE ===== */
   @media (max-width: 900px) and (hover: none) and (pointer: coarse){
@@ -422,6 +422,27 @@ total: combinedTotal
 };
 }
 
+
+function renderStatus(statusEl, found, total){
+if(!statusEl) return;
+
+statusEl.style.color = "#f5e6d3";
+statusEl.style.opacity = "0.8";
+
+if(found === total && total > 0){
+statusEl.textContent = "✔ completo";
+statusEl.style.color = "#f1c501";
+statusEl.style.opacity = "1";
+return;
+}
+
+statusEl.textContent = found + " / " + total;
+
+if(found === 0 && total === 0){
+statusEl.style.opacity = "0.7";
+}
+}
+
 function applyThumbBorder(card, percentage){
 let thumb = card.querySelector(".thumb");
 if(!thumb) return;
@@ -442,14 +463,16 @@ let thumbEl = document.getElementById("celticThumb");
 let totalFallback = parseInt(card.dataset.total);
 let initial = getCelticStatus(null, totalFallback);
 thumbEl.src = initial.thumb;
-statusEl.textContent = initial.found === initial.total ? "✔ completo" : initial.counter;
-applyThumbBorder(card, (initial.found / initial.total) * 100);
+renderStatus(statusEl, initial.found, initial.total);
+let initialPercentage = initial.total > 0 ? (initial.found / initial.total) * 100 : 0;
+applyThumbBorder(card, initialPercentage);
 
 getCelticCounterMeta().then(meta => {
 let updated = getCelticStatus(meta, totalFallback);
 thumbEl.src = updated.thumb;
-statusEl.textContent = updated.found === updated.total ? "✔ completo" : updated.counter;
-applyThumbBorder(card, (updated.found / updated.total) * 100);
+renderStatus(statusEl, updated.found, updated.total);
+let updatedPercentage = updated.total > 0 ? (updated.found / updated.total) * 100 : 0;
+applyThumbBorder(card, updatedPercentage);
 });
 return;
 }
@@ -458,29 +481,16 @@ let key = card.dataset.key;
 let total = parseInt(card.dataset.total);
 
 /* SKIP cards without progress data */
-if(!key || !total) return;
+if(!key || Number.isNaN(total)) return;
 
 let data = JSON.parse(localStorage.getItem(key) || "[]");
 
 let statusEl = card.querySelector(".status");
 
-if(data.length === total && total > 0){
+renderStatus(statusEl, data.length, total);
 
-statusEl.textContent = "✔ completo";
-
-}
-else if(data.length > 0){
-
-statusEl.textContent = data.length + " / " + total;
-
-}
-else{
-
-statusEl.textContent = "0 / " + total;
-
-}
-
-applyThumbBorder(card, (data.length / total) * 100);
+let percentage = total > 0 ? (data.length / total) * 100 : 0;
+applyThumbBorder(card, percentage);
 
 });
 
