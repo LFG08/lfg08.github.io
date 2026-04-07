@@ -357,6 +357,17 @@ return [];
 }
 }
 
+function getStoredProgressCount(key){
+try{
+let parsed = JSON.parse(localStorage.getItem(key) || "[]");
+if(Array.isArray(parsed)) return parsed.length;
+if(parsed && Array.isArray(parsed.placedPieceIds)) return parsed.placedPieceIds.length;
+return 0;
+}catch{
+return 0;
+}
+}
+
 async function getCelticCounterMeta(){
 try{
 let response = await fetch("CELTIC/index.html", { cache: "no-store" });
@@ -509,13 +520,11 @@ let total = parseInt(card.dataset.total);
 /* SKIP cards without progress data */
 if(!key || Number.isNaN(total)) return;
 
-let data = JSON.parse(localStorage.getItem(key) || "[]");
-
 let statusEl = card.querySelector(".status");
+let found = getStoredProgressCount(key);
+renderStatus(statusEl, found, total);
 
-renderStatus(statusEl, data.length, total);
-
-let percentage = total > 0 ? (data.length / total) * 100 : 0;
+let percentage = total > 0 ? (found / total) * 100 : 0;
 applyThumbBorder(card, percentage);
 
 });
