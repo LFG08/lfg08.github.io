@@ -675,6 +675,15 @@ const menuItems={};
 
 document.querySelectorAll("#wordList li").forEach(li=>{
 menuItems[li.id]=li;
+li.addEventListener("click", e => {
+if(e.button !== 0) return;
+let word = li.id.replace("menu-", "");
+let area = findAreaByWord(word);
+if(area){
+toggleAnswer(area, word);
+centerViewOnArea(area);
+}
+});
 li.addEventListener("contextmenu", e => {
 e.preventDefault();
 let word = li.id.replace("menu-", "");
