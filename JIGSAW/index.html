@@ -113,19 +113,23 @@
 
     .menu-actions {
       display: grid;
-      gap: 10px;
-      margin-top: 18px;
+      gap: 8px;
+      margin-top: 16px;
     }
 
     .menu-button {
+      display: block;
       width: 100%;
       border: 1px solid rgba(255, 240, 220, 0.18);
       border-radius: 999px;
-      padding: 11px 16px;
+      padding: 8px 12px;
       background: linear-gradient(180deg, rgba(118, 49, 12, 0.96), rgba(80, 31, 8, 0.96));
       color: #f6e6cf;
+      text-align: center;
+      text-decoration: none;
       cursor: pointer;
       font-family: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: 0.9rem;
       box-shadow:
         inset 0 1px 0 rgba(255, 214, 178, 0.16),
         0 10px 24px rgba(18, 7, 3, 0.24);
@@ -139,11 +143,12 @@
       width: 100%;
       border: 0;
       border-radius: 999px;
-      padding: 12px 16px;
+      padding: 9px 12px;
       background: linear-gradient(90deg, #c5661b, #8e3d0d);
       color: #fff5e7;
       cursor: pointer;
       font-family: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: 0.9rem;
       box-shadow:
         inset 0 1px 0 rgba(255, 217, 184, 0.18),
         0 16px 30px rgba(96, 36, 9, 0.34);
@@ -431,6 +436,7 @@
               <strong id="placed-label">0 / 100</strong>
             </div>
             <div class="menu-actions">
+              <a href="/" class="menu-button" role="button">Menu Principal</a>
               <button id="shuffle-button" type="button">Embaralhar Peças Soltas</button>
               <button id="info-button" class="menu-button" type="button">Sobre Esta Imagem</button>
             </div>
@@ -461,7 +467,8 @@
     const BOARD_SIZE = 768;
     const SNAP_DISTANCE = 110;
     const SNAP_AXIS_TOLERANCE = 72;
-    const SAVE_KEY = "LuciferFVS";
+    const SAVE_KEY = "luciferJigsawProgress";
+    const LEGACY_SAVE_KEYS = ["LuciferFVS"];
 
     const LEVELS = [
       {
@@ -618,7 +625,7 @@
 
     function loadProgress() {
       try {
-        const raw = localStorage.getItem(SAVE_KEY);
+        const raw = localStorage.getItem(SAVE_KEY) || LEGACY_SAVE_KEYS.map((key) => localStorage.getItem(key)).find(Boolean);
         if (!raw) {
           return null;
         }
