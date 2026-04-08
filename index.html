@@ -76,6 +76,38 @@ gap:20px;
 padding:40px;
 }
 
+.storage-tools{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
+margin:0 20px 12px;
+}
+
+.storage-btn{
+background:#5c2208;
+color:#f5e6d3;
+border:1px solid rgba(255,255,255,0.3);
+padding:10px 16px;
+font-family:Georgia, serif;
+font-size:15px;
+cursor:pointer;
+transition:0.2s ease;
+}
+
+.storage-btn:hover{
+background:#7a300e;
+}
+
+.storage-note{
+width:100%;
+text-align:center;
+font-size:12px;
+opacity:0.8;
+margin-top:2px;
+}
+
 /* ===== CARD ===== */
 
 .card{
@@ -212,6 +244,13 @@ color:#f5e6d3;
 <div class="title">
 <h1>vários nadas</h1>
 <div class="subtitle">✨puzzles em mandalas✨</div>
+</div>
+
+<div class="storage-tools">
+  <button id="exportProgressBtn" class="storage-btn" type="button">exportar progresso</button>
+  <button id="importProgressBtn" class="storage-btn" type="button">importar progresso</button>
+  <input id="importProgressInput" type="file" accept="application/json" hidden>
+  <div class="storage-note">salve seu progresso para transferir entre domínios/dispositivos</div>
 </div>
 
 <div class="grid">
@@ -489,7 +528,80 @@ if(percentage < 100) return;
 thumb.classList.add("progress-complete");
 }
 
+function getProgressBackupPayload(){
+let storageDump = {};
+for(let i = 0; i < localStorage.length; i++){
+let key = localStorage.key(i);
+if(!key) continue;
+storageDump[key] = localStorage.getItem(key);
+}
+
+return {
+exportedAt: new Date().toISOString(),
+version: 1,
+source: "varios-nadas",
+localStorage: storageDump
+};
+}
+
+function exportProgressToFile(){
+let payload = getProgressBackupPayload();
+let blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+let url = URL.createObjectURL(blob);
+let anchor = document.createElement("a");
+let dateStamp = payload.exportedAt.slice(0, 10);
+anchor.href = url;
+anchor.download = "varios-nadas-progresso-" + dateStamp + ".json";
+document.body.appendChild(anchor);
+anchor.click();
+anchor.remove();
+URL.revokeObjectURL(url);
+}
+
+function importProgressFromPayload(payload){
+if(!payload || typeof payload !== "object" || !payload.localStorage || typeof payload.localStorage !== "object"){
+alert("arquivo inválido.");
+return false;
+}
+
+let entries = Object.entries(payload.localStorage);
+entries.forEach(([key, value]) => {
+if(typeof value === "string"){
+localStorage.setItem(key, value);
+}
+});
+
+alert("progresso importado com sucesso! a página será recarregada.");
+window.location.reload();
+return true;
+}
+
 window.addEventListener("DOMContentLoaded", function(){
+let exportBtn = document.getElementById("exportProgressBtn");
+let importBtn = document.getElementById("importProgressBtn");
+let importInput = document.getElementById("importProgressInput");
+
+if(exportBtn){
+exportBtn.addEventListener("click", exportProgressToFile);
+}
+
+if(importBtn && importInput){
+importBtn.addEventListener("click", () => importInput.click());
+importInput.addEventListener("change", async function(event){
+let file = event.target.files && event.target.files[0];
+if(!file) return;
+
+try{
+let text = await file.text();
+let payload = JSON.parse(text);
+importProgressFromPayload(payload);
+}catch{
+alert("não foi possível ler o arquivo de progresso.");
+}
+
+importInput.value = "";
+});
+}
 
 document.querySelectorAll(".card").forEach(card => {
 
