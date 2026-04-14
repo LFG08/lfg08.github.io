@@ -604,7 +604,13 @@ importInput.value = "";
 });
 }
 
+
 document.querySelectorAll(".card").forEach(card => {
+card.addEventListener("click", function(event){
+event.preventDefault();
+alert("exporte seu progresso para mandalapuzzle.com.br");
+});
+ 
 
 if(card.dataset.celtic === "true"){
 let statusEl = card.querySelector(".status");
